@@ -5,9 +5,11 @@ const path = require('path');
 const PORT = 3000;
 const userRoutes = require('./routes/userRoutes');
 const sequelize = require('./util/database');
-const cors = require('cors');
 
-app.use(cors());
+
+
+
+
 app.use(bodyParser.json());
 app.use(express.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public')));
