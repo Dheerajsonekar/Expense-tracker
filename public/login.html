@@ -7,16 +7,16 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
+        <link rel="stylesheet" href="./assets/style.css">
     </head>
     <body>
-        <div>
-            <form action="">
+        <div id="loginForm-div">
+            <form  id="loginForm">
                 <label for="email">Enter Email:</label>
-                <input type="email" name="email">
+                <input type="email" name="email" id="email" required>
                 <br>
-                <label for="passwor">Enter password:</label>
-                <input type="password" name="password">
+                <label for="password">Enter password:</label>
+                <input type="password" name="password" id="password" required>
                 <br>
                 <button type="submit">login</button>
             </form>
@@ -24,6 +24,6 @@
             <p>New User? <a href="./signup.html">SignUp</a> </p>
         </div>
         
-        <script src="" async defer></script>
+        <script src="./assets/Script.js" async defer></script>
     </body>
 </html>
