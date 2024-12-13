@@ -7,23 +7,24 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
+        <link rel="stylesheet" href="./assets/style.css">
     </head>
     <body>
-        <div>
-            <form action="" method="POST">
+        <div id="signupForm-div">
+            <form id="signupForm">
                 <label for="name">Enter Name:</label>
-                <input type="text" id="name">
+                <input type="text" id="name" name="name">
                 <br>
                 <label for="email">Enter Email:</label>
-                <input type="email" id="email">
+                <input type="email" id="email" name="email">
                 <br>
                 <label for="password">Enter password: </label>
-                <input type="password" id="password">
-                <button type="submit">SignUp</button>
+                <input type="password" id="password" name="password">
+                <br>
+                <button type="submit" id="signup-btn">SignUp</button>
             </form>
         </div>
         
-        <script src="" async defer></script>
+        <script src="./assets/Script.js" async defer></script>
     </body>
 </html>
