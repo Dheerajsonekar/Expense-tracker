@@ -1,9 +1,11 @@
 const User = require('../models/User');
+const bcrypt = require('bcrypt');
 
 
 exports.signupPost = async (req, res)=>{
     
     const {name, email, password } = req.body;
+
     try{
 
     const alreadyExits = await User.findOne({where:{email}}); 
@@ -11,6 +13,8 @@ exports.signupPost = async (req, res)=>{
     if(alreadyExits){
         return res.status(400).json({message: 'Email already exits'})
     }
+
+    // encrypt pass before storing with saltround=10
     const hashPassword = await bcrypt.hash(password, 10);
     const response = await User.create({name, email:email.toLowerCase(), password: hashPassword});
 
