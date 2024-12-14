@@ -5,6 +5,9 @@ const path = require('path');
 const PORT = 3000;
 const userRoutes = require('./routes/userRoutes');
 const sequelize = require('./util/database');
+const User = require('./models/User');
+const Expense = require('./models/Expense');
+const { foreign_key } = require('i/lib/methods');
 
 
 
@@ -18,6 +21,10 @@ app.get('/', (req, res)=>{
     res.sendFile(path.join(__dirname, 'public', 'signup.html'));
 })
 app.use('/api', userRoutes);
+
+
+User.hasMany(Expense, { foreignkey: 'userId', onDelete: 'CASCADE'});
+Expense.belongsTo(User, { foreignkey: 'userId'});
 
 
 

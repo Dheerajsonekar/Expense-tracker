@@ -1,11 +1,12 @@
 const expense = require("../models/Expense");
+const User = require('../models/User');
 
 exports.expensePost = async (req, res) => {
   const { amount, description, category } = req.body;
 
   try {
-    const response = await expense.create({ amount, description, category });
-    if (response.ok) {
+    const response = await expense.create({ amount, description, category, userId: req.params.user.id });
+    if (response) {
       return res.status(201).json({ message: "expense posted successfully!" });
     }
   } catch (err) {
@@ -14,7 +15,7 @@ exports.expensePost = async (req, res) => {
   }
 };
 
-exports.showExpense = async (req, res)=>{
+exports.showExpenses = async (req, res)=>{
     
     try{
      

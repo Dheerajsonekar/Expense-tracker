@@ -62,6 +62,7 @@ if (loginform) {
 }
 
 if (expenseform) {
+  showExpense();
   expenseform.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -75,9 +76,16 @@ if (expenseform) {
         body: JSON.stringify(data),
       });
 
-      if (response.ok) {
-        await showExpense();
+      if(!response.ok){
+        throw new Error('failed in fetch')
       }
+
+      expenseform.reset();
+      
+      const result = await response.json();
+      console.log(result);
+
+     await showExpense();
     } catch (err) {
       console.log(" fetch failed in post expense", err);
     }
@@ -103,6 +111,6 @@ if (expenseform) {
       console.error("error while showing expenses.");
     }
   }
-
   
+
 }
