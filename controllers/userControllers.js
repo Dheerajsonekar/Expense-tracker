@@ -18,9 +18,11 @@ exports.signupPost = async (req, res)=>{
     const hashPassword = await bcrypt.hash(password, 10);
     const response = await User.create({name, email:email.toLowerCase(), password: hashPassword});
 
-    if(response.ok){
+    if(response){
+
         return res.status(201).json({message:'User created successfully'});
     }
+    
 
     }catch(err){
      console.error('Error during signUp', err);
@@ -30,7 +32,7 @@ exports.signupPost = async (req, res)=>{
 }
 
 exports.loginPost = async (req, res)=>{
-  console.log(req.body);
+  
  const {email, password } = req.body;
 
  try{
@@ -53,3 +55,4 @@ exports.loginPost = async (req, res)=>{
  }
 
 }
+

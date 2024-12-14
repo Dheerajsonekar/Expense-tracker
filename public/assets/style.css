@@ -52,6 +52,22 @@ body {
     
 }
 
+#expense-div {
+    display: flex-column;
+    align-items:center;
+    justify-content: center;
+    text-align: center;
+    height: 300px;
+    width: 300px;
+    background-color: aquamarine;
+    border-radius: 20px;
+
+    margin-top: 150px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 10px;
+}
+
 .tittle {
     margin-bottom: 30px;
     text-align: center;

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="./assets/style.css">
+    </head>
+    <body>
+        <div id="expense-div">
+            <h2 class="tittle">Add Expense</h2>
+            <form id="expenseForm">
+                <label for="amount">Amount:</label>
+                <input type="text" name="amount" id="amount">
+                <br><br>
+                <label for="description">Description:</label>
+                <input type="text" name="description" id="description">
+                <br><br>
+                <label for="category">Select category:</label>
+                <select name="category" id="category">
+                    <option value="food">food</option>
+                    <option value="book">book</option>
+                    <option value="movie">movie</option>
+                    <option value="sport">sport</option>
+                    <option value="coding">coding</option>
+                    <option value="date">Date</option>
+                </select>
+                <br><br>
+                <button type="submit" class="submit-btn">Add</button>
+            </form>
+        </div>
+
+        <div id="expenseList">
+            <ul id="list"></ul>
+        </div>
+        
+        <script src="./assets/Script.js" async defer></script>
+    </body>
+</html>
