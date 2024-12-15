@@ -1,13 +1,14 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const path = require('path');
-const PORT = 3000;
+const PORT = process.env.PORT || 3000 ;
 const userRoutes = require('./routes/userRoutes');
 const sequelize = require('./util/database');
 const User = require('./models/User');
 const Expense = require('./models/Expense');
-const { foreign_key } = require('i/lib/methods');
+
 
 
 
@@ -29,6 +30,7 @@ Expense.belongsTo(User, { foreignkey: 'userId'});
 
 
 sequelize
+// .sync({force: true})
 .sync()
 .then((result)=>{
     

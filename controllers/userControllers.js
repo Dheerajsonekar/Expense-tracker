@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 
 exports.signupPost = async (req, res)=>{
@@ -46,7 +47,14 @@ exports.loginPost = async (req, res)=>{
        return res.status(401).json({message: 'Invalid password! '})
     }
     
-   return res.status(201).json({message: 'User logged in succesfully'})
+  const token = jwt.sign(
+    {id: emailExits.id, email: emailExits.email},
+    process.env.JWT_SECRET ,
+    {expiresIn:'2h'}
+  )
+   console.log("token generated in loginapi",token);
+
+   return res.status(200).json({message: 'User logged in succesfully', token})
 
 
  }catch(err){

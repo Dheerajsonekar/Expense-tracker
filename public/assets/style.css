@@ -68,6 +68,25 @@ body {
     padding-top: 10px;
 }
 
+#expenseList-div {
+    display: flex-column;
+    align-items: center;
+    justify-content: center;
+    height:auto;
+    width: auto;
+    background-color: aquamarine;
+    border-radius: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding-bottom: 10px;
+    
+}
+
+#list {
+    list-style: none;
+    text-align: center;
+}
+
 .tittle {
     margin-bottom: 30px;
     text-align: center;

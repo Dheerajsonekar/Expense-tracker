@@ -21,6 +21,7 @@ if (signupform) {
       }
       signupform.reset();
       const result = await response.json();
+
       console.log(result);
 
       //redirect to login page after successfull signup
@@ -50,8 +51,7 @@ if (loginform) {
       loginform.reset();
 
       const result = await response.json();
-
-      console.log(result);
+      localStorage.setItem("authToken", result.token);
 
       //After login redirect to expense page
       window.location.href = "./expenseform.html";
@@ -68,49 +68,102 @@ if (expenseform) {
 
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
+    const token = localStorage.getItem("authToken");
 
     try {
       const response = await fetch("api/expense", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: ` Bearer ${token}`,
+        },
         body: JSON.stringify(data),
       });
 
-      if(!response.ok){
-        throw new Error('failed in fetch')
+      if (!response.ok) {
+        throw new Error("failed in fetch");
       }
 
       expenseform.reset();
-      
+
       const result = await response.json();
       console.log(result);
 
-     await showExpense();
+      await showExpense();
     } catch (err) {
       console.log(" fetch failed in post expense", err);
     }
   });
 
-  
   async function showExpense() {
+    const token = localStorage.getItem("authToken");
+
     try {
       const response = await fetch("api/showexpense", {
         method: "GET",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: ` Bearer ${token}`,
+        },
       });
+
+      if (expenselist) {
+        expenselist.innerHTML = "";
+      }
       const expenses = await response.json();
 
       expenses.forEach((expense) => {
         const newList = document.createElement("li");
-        newList.innerHTML = `${expense.amount} ${expense.description} ${expense.category}<button id="edit-btn">Edit</button> <button id="delete-btn">Delete</button>`;
+        newList.innerHTML = ` 🔹 💸 <strong>Amount:</strong> ${expense.amount} 
+                📝 <strong>Description:</strong> ${expense.description} 
+                🗂️ <strong>Category:</strong> ${expense.category} 
+                 
+                <button class="delete-btn">🗑️ Delete</button>`;
         if (expenselist) {
           expenselist.appendChild(newList);
         }
+          const deleteBtn = newList.querySelector(".delete-btn");
+        if (deleteBtn) {
+          
+            deleteBtn.addEventListener("click", async (e) => {
+              e.preventDefault();
+              const expenseId = expense.id;
+              const token = localStorage.getItem('authToken');
+    
+              try {
+                const result = await fetch(`/api/expense/${expenseId}`, {
+                  method: "DELETE",
+                  headers:{
+                    'Authorization':`Bearer ${token}`
+                  }
+                });
+                e.target.parentNode.remove();
+                const response = await result.json();
+                if (response.ok) {
+                  showExpense();
+                  console.log("deleted successfully!");
+                }
+              } catch (err) {
+                console.log("failed to delete in scripterror", err);
+              }
+            });
+          
+          
+        }
+
+
+
+
+
+
+
       });
+
+      const deleteBtn = document.querySelectorAll(".delete-btn");
+
+      
     } catch (err) {
       console.error("error while showing expenses.");
     }
   }
-  
-
 }
