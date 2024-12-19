@@ -1,5 +1,5 @@
 body {
-    background: linear-gradient(120deg, pink, purple, red);
+    background: linear-gradient(120deg, purple, grey, red);
     background-size: 300% 300%;
     animation: gradientAnimation 10s infinite ease-in-out;
 
@@ -100,16 +100,14 @@ label {
 
 input {
     border-radius: 10px;
-    border-style: none;
+    border-style: outset;
 }
 
 .paratext {
  font-style: italic;
 }
 
-a:hover {
-  color:darkmagenta;
-}
+
 
 .submit-btn {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -120,4 +118,48 @@ a:hover {
 
 .submit-btn::shadow {
     background-color: aqua;
+}
+
+
+header {
+    background-color: cornflowerblue;
+    color: white;
+    padding: 5px 10px;
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    
+    gap: 20px;
+}
+
+header nav ul li {
+    display: inline;
+}
+
+header nav ul li a,
+header nav ul li button {
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+header nav ul li a:hover, 
+header nav ul li button:hover {
+    text-decoration: underline;
+}
+
+#userNameDisplay span {
+    font-weight: bold;
+    text-transform: capitalize;
+    
+}
+
+#userNameDisplay {
+    color: white;
+    font-size: 16px;
+    margin-right: 20px;
 }

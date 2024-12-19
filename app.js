@@ -8,14 +8,14 @@ const userRoutes = require('./routes/userRoutes');
 const sequelize = require('./util/database');
 const User = require('./models/User');
 const Expense = require('./models/Expense');
-
+const Payment = require('./models/Payment');
 
 
 
 
 
 app.use(bodyParser.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res)=>{
@@ -24,13 +24,16 @@ app.get('/', (req, res)=>{
 app.use('/api', userRoutes);
 
 
-User.hasMany(Expense, { foreignkey: 'userId', onDelete: 'CASCADE'});
-Expense.belongsTo(User, { foreignkey: 'userId'});
+User.hasMany(Expense, { foreignkey: "userId", onDelete: 'CASCADE'});
+Expense.belongsTo(User, { foreignkey: "userId"});
+
+User.hasMany(Payment, {foreignkey: "userId", onDelete: "CASCADE"});
+Payment.belongsTo(User, {foreignkey: "userId"})
 
 
 
 sequelize
-// .sync({force: true})
+// .sync({alter: true})
 .sync()
 .then((result)=>{
     
