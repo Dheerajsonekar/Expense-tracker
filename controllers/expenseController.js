@@ -1,6 +1,6 @@
 const expense = require("../models/Expense");
 const User = require("../models/User");
-const sequelize = require('sequelize')
+const sequelize = require("sequelize");
 
 // expense post api
 exports.expensePost = async (req, res) => {
@@ -14,6 +14,11 @@ exports.expensePost = async (req, res) => {
       userId: req.user.id,
     });
     if (response) {
+      // Update the totalAmount in the User table
+      await User.increment("totalAmount", {
+        by: parseFloat(amount),
+        where: { id: req.user.id },
+      });
       return res.status(201).json({ message: "expense posted successfully!" });
     }
   } catch (err) {
@@ -59,33 +64,19 @@ exports.deleteExpense = async (req, res) => {
   }
 };
 
-
-
-
-
 // premium feature leaderboard
 exports.getboard = async (req, res) => {
   try {
     const response = await User.findAll({
       where: { isPremium: true },
-      attributes: [
-        'name', // Include user name
-        [sequelize.fn('SUM', sequelize.col('expenses.amount')), 'totalAmount'], // Aggregate amount
-      ],
-      include: [
-        {
-          model: expense,
-          attributes: []
-        },
-      ],
-      group: ['User.id'], // Group by user
-      order: [[sequelize.literal('totalAmount'), 'DESC']], // Order by aggregated amount
+      attributes: ['name', 'totalAmount'], // Include user name and totalAmount
+      order: [['totalAmount', 'DESC']], // Order by totalAmount
     });
 
     // Format the leaderboard response
     const leaderboard = response.map((user) => ({
       username: user.name, // User's name
-      totalAmount: user.dataValues.totalAmount || 0, // Aggregated total amount
+      totalAmount: user.totalAmount || 0, // Total amount
     }));
 
     console.log('Formatted Leaderboard Data:', leaderboard);
@@ -95,6 +86,3 @@ exports.getboard = async (req, res) => {
     return res.status(500).json({ message: 'Failed to fetch leaderboard data.', error: err.message });
   }
 };
-    
-
-   
