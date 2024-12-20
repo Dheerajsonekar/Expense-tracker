@@ -24,11 +24,11 @@ app.get('/', (req, res)=>{
 app.use('/api', userRoutes);
 
 
-User.hasMany(Expense, { foreignkey: "userId", onDelete: 'CASCADE'});
-Expense.belongsTo(User, { foreignkey: "userId"});
+User.hasMany(Expense, { foreignKey: "userId", onDelete: 'CASCADE'});
+Expense.belongsTo(User, { foreignKey: "userId"});
 
-User.hasMany(Payment, {foreignkey: "userId", onDelete: "CASCADE"});
-Payment.belongsTo(User, {foreignkey: "userId"})
+User.hasMany(Payment, {foreignKey: "userId", onDelete: "CASCADE"});
+Payment.belongsTo(User, {foreignKey: "userId"})
 
 
 

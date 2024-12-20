@@ -1,73 +1,16 @@
-const signupform = document.getElementById("signupForm");
-const loginform = document.getElementById("loginForm");
+
+
 const expenseform = document.getElementById("expenseForm");
 const expenselist = document.getElementById("list");
 const logoutbtn = document.getElementById("logoutbtn");
 const username = document.getElementById("username");
 const premiumBtn = document.getElementById("premium");
-const leaderboardBtn = document.getElementById("leaderboard")
+const leaderboardBtn = document.getElementById("leaderboard");
+const leaderboardList = document.getElementById("leaderboardList");
 
-// sign up section
 
-if (signupform) {
-  signupform.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
 
-    try {
-      const response = await fetch("/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
 
-      if (!response.ok) {
-        throw new Error("failed to fetch.");
-      }
-      signupform.reset();
-      const result = await response.json();
-
-      console.log(result);
-
-      //redirect to login page after successfull signup
-      window.location.href = "./login.html";
-    } catch (error) {
-      console.error(error);
-    }
-  });
-}
-
-//  login section
-
-if (loginform) {
-  loginform.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-
-    try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error("failed to fetch.");
-      }
-      loginform.reset();
-
-      const result = await response.json();
-      localStorage.setItem("authToken", result.token);
-
-      //After login redirect to expense page
-      window.location.href = "./expenseform.html";
-    } catch (error) {
-      console.error(error);
-    }
-  });
-}
 
 // expense section
 if (expenseform) {
@@ -208,6 +151,44 @@ if (username) {
         if (premiumBtn) {
           premiumBtn.style.display = "none";
         }
+
+        if (leaderboardBtn) {
+          leaderboardBtn.style.display = "inline";
+          leaderboardBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+          
+            const token = localStorage.getItem("authToken");
+          
+            try {
+              const response = await fetch("api/premium/leaderboard", {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+          
+              
+          const result = await response.json();
+              // Debug to confirm result is an array
+              console.log("Leaderboard Data:", result);
+          
+              if (Array.isArray(result)) {
+                leaderboardList.innerHTML = ""; // Clear existing items
+                result.forEach((user, index) => {
+                  const newList = document.createElement("li");
+                  newList.textContent = `${index + 1}. ${user.username} - ₹${user.totalAmount}`;
+                  leaderboardList.appendChild(newList);
+                });
+              } else {
+                console.error("Leaderboard API returned a non-array response:", result);
+              }
+            } catch (err) {
+              console.error("Failed to fetch leaderboard data:", err);
+            }
+          });
+          
+        }
       }
     } catch (err) {
       console.log("failed to get name in script", err);
@@ -260,27 +241,4 @@ if (premiumBtn) {
     const razorpay = new Razorpay(options);
     razorpay.open();
   });
-}
-
-if(leaderboardBtn){
-  leaderboardBtn.addEventListener("click", async (e)=>{
-    e.preventDefault();
-
-    try{
-      
-      const response = await fetch('api/board', {
-        method: "GET"
-      })
-
-      const result = await response.json();
-
-      result.forEach((exp)=>{
-         
-      })
-
-    }catch(err){
-
-    }
-
-  })
 }
