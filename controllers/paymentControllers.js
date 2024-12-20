@@ -2,6 +2,7 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const User = require("../models/User");
 const Payment = require("../models/Payment");
+const sequilize = require("../util/database");
 
 const razorpay = new Razorpay({
   key_id: process.env.razorPay_key_id,
@@ -27,6 +28,8 @@ exports.createOrder = async (req, res) => {
 };
 
 exports.verifyPayment = async (req, res) => {
+  const t = await Sequelize.transaction();
+
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
       req.body;
@@ -49,12 +52,16 @@ exports.verifyPayment = async (req, res) => {
         userId,
         amount: 100,
         status: "success"
-      })
+      },{transaction: t})
+
+      await t.commit();
 
       return res.status(200).json({message: "Payment verification successfull"});
 
 
   } catch (err) {
+
+    await t.rollback();
     console.error('Error in verifying payment', err)
     return res.status(500).json({message: "Payment verification failed"})
   }

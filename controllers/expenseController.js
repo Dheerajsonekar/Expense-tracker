@@ -5,6 +5,7 @@ const sequelize = require("sequelize");
 // expense post api
 exports.expensePost = async (req, res) => {
   const { amount, description, category } = req.body;
+  const t = await sequelize.transaction();
 
   try {
     const response = await expense.create({
@@ -12,16 +13,20 @@ exports.expensePost = async (req, res) => {
       description,
       category,
       userId: req.user.id,
-    });
+    }, {transaction: t});
     if (response) {
       // Update the totalAmount in the User table
       await User.increment("totalAmount", {
         by: parseFloat(amount),
         where: { id: req.user.id },
+        transaction: t
       });
+
+      await t.commit();
       return res.status(201).json({ message: "expense posted successfully!" });
     }
   } catch (err) {
+    await t.rollback();
     console.error("failed to post expense", err);
     return res.status(500).json(err);
   }
