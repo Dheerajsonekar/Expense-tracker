@@ -167,3 +167,7 @@ header nav ul li button:hover {
 #leaderboard {
     display: none;
 }
+
+#leaderboardTittle {
+    display: none
+}

@@ -2,7 +2,7 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const User = require("../models/User");
 const Payment = require("../models/Payment");
-const sequilize = require("../util/database");
+const sequelize = require("../util/database");
 
 const razorpay = new Razorpay({
   key_id: process.env.razorPay_key_id,
@@ -28,7 +28,7 @@ exports.createOrder = async (req, res) => {
 };
 
 exports.verifyPayment = async (req, res) => {
-  const t = await Sequelize.transaction();
+  const t = await sequelize.transaction();
 
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =

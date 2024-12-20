@@ -33,7 +33,7 @@ Payment.belongsTo(User, {foreignKey: "userId"})
 
 
 sequelize
-// .sync({alter: true})
+// .sync({force: true})
 .sync()
 .then((result)=>{
     

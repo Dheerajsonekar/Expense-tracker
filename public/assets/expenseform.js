@@ -1,5 +1,3 @@
-
-
 const expenseform = document.getElementById("expenseForm");
 const expenselist = document.getElementById("list");
 const logoutbtn = document.getElementById("logoutbtn");
@@ -7,11 +5,7 @@ const username = document.getElementById("username");
 const premiumBtn = document.getElementById("premium");
 const leaderboardBtn = document.getElementById("leaderboard");
 const leaderboardList = document.getElementById("leaderboardList");
-
-
-
-
-
+const leaderboardTittle = document.getElementById("leaderboardTittle");
 // expense section
 if (expenseform) {
   showExpense();
@@ -79,30 +73,29 @@ if (expenseform) {
 
         // delete btn functionality
         const deleteBtn = newList.querySelector(".delete-btn");
-        if (deleteBtn) {
-          deleteBtn.addEventListener("click", async (e) => {
-            e.preventDefault();
-            const expenseId = expense.id;
-            const token = localStorage.getItem("authToken");
 
-            try {
-              const result = await fetch(`/api/expense/${expenseId}`, {
-                method: "DELETE",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              });
-              e.target.parentNode.remove();
-              const response = await result.json();
-              if (response.ok) {
-                showExpense();
-                console.log("deleted successfully!");
-              }
-            } catch (err) {
-              console.log("failed to delete in scripterror", err);
+        deleteBtn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          const expenseId = expense.id;
+          const token = localStorage.getItem("authToken");
+
+          try {
+            const result = await fetch(`/api/expense/${expenseId}`, {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            e.target.parentNode.remove();
+            const response = await result.json();
+            if (response.ok) {
+              showExpense();
+              console.log("deleted successfully!");
             }
-          });
-        }
+          } catch (err) {
+            console.log("failed to delete in scripterror", err);
+          }
+        });
       });
     } catch (err) {
       console.error("error while showing expenses.");
@@ -148,47 +141,46 @@ if (username) {
         user.premium ? "Premium" : "Free"
       })`;
       if (user.premium) {
-        if (premiumBtn) {
-          premiumBtn.style.display = "none";
-        }
+        premiumBtn.style.display = "none";
+        
+        leaderboardBtn.style.display = "inline";
+        leaderboardBtn.addEventListener("click", async (e) => {
+          e.preventDefault();
 
-        if (leaderboardBtn) {
-          leaderboardBtn.style.display = "inline";
-          leaderboardBtn.addEventListener("click", async (e) => {
-            e.preventDefault();
-          
-            const token = localStorage.getItem("authToken");
-          
-            try {
-              const response = await fetch("api/premium/leaderboard", {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
+          const token = localStorage.getItem("authToken");
+          leaderboardTittle.style.display = "block";
+          try {
+            const response = await fetch("api/premium/leaderboard", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            const result = await response.json();
+            // Debug to confirm result is an array
+            console.log("Leaderboard Data:", result);
+
+            if (Array.isArray(result)) {
+              leaderboardList.innerHTML = ""; // Clear existing items
+              result.forEach((user, index) => {
+                const newList = document.createElement("li");
+                newList.textContent = `${index + 1}. ${user.username} - ₹${
+                  user.totalAmount
+                }`;
+                leaderboardList.appendChild(newList);
               });
-          
-              
-          const result = await response.json();
-              // Debug to confirm result is an array
-              console.log("Leaderboard Data:", result);
-          
-              if (Array.isArray(result)) {
-                leaderboardList.innerHTML = ""; // Clear existing items
-                result.forEach((user, index) => {
-                  const newList = document.createElement("li");
-                  newList.textContent = `${index + 1}. ${user.username} - ₹${user.totalAmount}`;
-                  leaderboardList.appendChild(newList);
-                });
-              } else {
-                console.error("Leaderboard API returned a non-array response:", result);
-              }
-            } catch (err) {
-              console.error("Failed to fetch leaderboard data:", err);
+            } else {
+              console.error(
+                "Leaderboard API returned a non-array response:",
+                result
+              );
             }
-          });
-          
-        }
+          } catch (err) {
+            console.error("Failed to fetch leaderboard data:", err);
+          }
+        });
       }
     } catch (err) {
       console.log("failed to get name in script", err);
@@ -198,47 +190,45 @@ if (username) {
 
 // premium user section
 
-if (premiumBtn) {
-  premiumBtn.addEventListener("click", async (e) => {
-    e.preventDefault();
+premiumBtn.addEventListener("click", async (e) => {
+  e.preventDefault();
 
-    const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("authToken");
 
-    const response = await fetch("api/premium", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const { orderId, key } = await response.json();
-
-    const options = {
-      key: key,
-      amount: 100,
-      currency: "INR",
-      name: "Premium membership",
-      description: "unlock premium features",
-      order_id: orderId,
-      handler: async (response) => {
-        await fetch("api/premium/verify", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(response),
-        });
-        alert("Payment successful. You are now a premium user");
-
-        window.location.reload();
-      },
-
-      theme: "#3399cc",
-    };
-
-    const razorpay = new Razorpay(options);
-    razorpay.open();
+  const response = await fetch("api/premium", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
   });
-}
+
+  const { orderId, key } = await response.json();
+
+  const options = {
+    key: key,
+    amount: 100,
+    currency: "INR",
+    name: "Premium membership",
+    description: "unlock premium features",
+    order_id: orderId,
+    handler: async (response) => {
+      await fetch("api/premium/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(response),
+      });
+      alert("Payment successful. You are now a premium user");
+
+      window.location.reload();
+    },
+
+    theme: "#3399cc",
+  };
+
+  const razorpay = new Razorpay(options);
+  razorpay.open();
+});
