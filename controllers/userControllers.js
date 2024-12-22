@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Sib = require("sib-api-v3-sdk");
 
 // sign up api
 exports.signupPost = async (req, res) => {
@@ -33,6 +34,7 @@ exports.signupPost = async (req, res) => {
 // login api
 exports.loginPost = async (req, res) => {
   const { email, password } = req.body;
+  
 
   try {
     const emailExits = await User.findOne({ where: { email } });
@@ -73,9 +75,49 @@ exports.getUser = async (req, res) => {
       return res.status(404).json({ message: "User not found!" });
     }
 
-    return res.status(200).json({ username: user.name, premium: user.isPremium });
+    return res
+      .status(200)
+      .json({ username: user.name, premium: user.isPremium });
   } catch (err) {
     console.error("failed to get user in api", err);
     return res.status(500).json({ message: "failed to get username" });
+  }
+};
+
+// forgot password api
+
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  console.log("received email", email);
+
+  const client = Sib.ApiClient.instance;
+  const apiKey = client.authentications['api-key'];
+  apiKey.apiKey = process.env.SMTP_KEY;
+  const transEmailApi = new Sib.TransactionalEmailsApi();
+
+  const sender = {
+    email: "dheerajsonekar2@gmail.com",
+  };
+
+  const receiver = [
+    {
+      email: email,
+    },
+  ];
+
+  try {
+    const response = await transEmailApi.sendTransacEmail({
+      sender,
+      to: receiver,
+      subject: "Reset Password",
+      textContent: "this is your reset password link",
+    });
+
+    console.log("email send response", response);
+
+    return res.status(200).json(response);
+  } catch (err) {
+    console.error("failed to send email at api", err);
+    res.status(500).json({ message: "failed to send email api " });
   }
 };
