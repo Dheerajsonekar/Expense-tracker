@@ -1,5 +1,5 @@
-require('dotenv').config();
 const express = require('express');
+require('dotenv').config();
 const app = express();
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -9,7 +9,7 @@ const sequelize = require('./util/database');
 const User = require('./models/User');
 const Expense = require('./models/Expense');
 const Payment = require('./models/Payment');
-
+const forgotPasswordRequests = require("./models/forgotPasswordRequests");
 
 
 
@@ -19,7 +19,10 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res)=>{
-    res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+})
+app.get('/password/resetPassword/:id', (req, res)=>{
+    res.sendFile(path.join(__dirname, 'public', 'resetPassword.html'));
 })
 app.use('/api', userRoutes);
 
@@ -30,10 +33,14 @@ Expense.belongsTo(User, { foreignKey: "userId"});
 User.hasMany(Payment, {foreignKey: "userId", onDelete: "CASCADE"});
 Payment.belongsTo(User, {foreignKey: "userId"})
 
+User.hasMany(forgotPasswordRequests, {foreignKey:"userId", onDelete: "CASCADE"});
+forgotPasswordRequests.belongsTo(User, {foreignkey:"userId"});
+
+
 
 
 sequelize
-// .sync({force: true})
+// .sync({alter: true})
 .sync()
 .then((result)=>{
     

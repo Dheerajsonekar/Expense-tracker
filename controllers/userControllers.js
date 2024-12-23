@@ -1,7 +1,9 @@
 const User = require("../models/User");
+const forgotPasswordRequests = require("../models/forgotPasswordRequests");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Sib = require("sib-api-v3-sdk");
+const { v4: uuidv4 } = require("uuid");
 
 // sign up api
 exports.signupPost = async (req, res) => {
@@ -34,7 +36,6 @@ exports.signupPost = async (req, res) => {
 // login api
 exports.loginPost = async (req, res) => {
   const { email, password } = req.body;
-  
 
   try {
     const emailExits = await User.findOne({ where: { email } });
@@ -91,7 +92,7 @@ exports.forgotPassword = async (req, res) => {
   console.log("received email", email);
 
   const client = Sib.ApiClient.instance;
-  const apiKey = client.authentications['api-key'];
+  const apiKey = client.authentications["api-key"];
   apiKey.apiKey = process.env.SMTP_KEY;
   const transEmailApi = new Sib.TransactionalEmailsApi();
 
@@ -106,18 +107,63 @@ exports.forgotPassword = async (req, res) => {
   ];
 
   try {
-    const response = await transEmailApi.sendTransacEmail({
-      sender,
-      to: receiver,
-      subject: "Reset Password",
-      textContent: "this is your reset password link",
-    });
+    const emailExits = await User.findOne({ where: { email } });
+    const requestId = uuidv4();
+    if (emailExits) {
+      const response = await transEmailApi.sendTransacEmail({
+        sender,
+        to: receiver,
+        subject: "Reset password",
+        textContent: `Click on the link to reset password http://localhost:3000/password/resetPassword/${requestId}`,
+      });
+      console.log("email send response");
 
-    console.log("email send response", response);
+      await forgotPasswordRequests.create({
+        id: requestId,
+        userId: emailExits.id,
+        isActive: true,
+      });
 
-    return res.status(200).json(response);
+      return res.status(200).json(response);
+    } else {
+      return res.status(404).json({ message: "email not Register with us!" });
+    }
   } catch (err) {
     console.error("failed to send email at api", err);
     res.status(500).json({ message: "failed to send email api " });
+  }
+};
+
+// reset password api
+
+exports.resetPassword = async (req, res) => {
+  const { newPassword } = req.body;
+  const requestId = req.params.id;
+
+  try {
+    const request = await forgotPasswordRequests.findByPk(requestId);
+    if (!request) {
+      return res.status(404).json({ message: "invalid request" });
+    }
+    if (!request.isActive) {
+      return res
+        .status(400)
+        .json({ message: "link expired. try again for another link!" });
+    }
+
+    const user = await User.findByPk(request.userId);
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashPassword;
+    await user.save();
+    request.isActive = false;
+    await request.save();
+    return res.status(200).json({ message: "password reset successfully" });
+  } catch (err) {
+    console.error("failed to reset password ", err);
+    return res.status(500).json({ message: "failed to reset password" });
   }
 };

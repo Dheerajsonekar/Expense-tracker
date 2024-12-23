@@ -6,10 +6,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon app.js"
   },
-  "author": "",
+  "author": "dheeraj sonekar",
   "license": "ISC",
-  "description": "",
+  "description": "this is expense tracker with full functionality of any website",
   "dependencies": {
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
@@ -22,6 +23,7 @@
     "path": "^0.12.7",
     "razorpay": "^2.9.5",
     "sequelize": "^6.37.5",
-    "sib-api-v3-sdk": "^8.5.0"
+    "sib-api-v3-sdk": "^8.5.0",
+    "uuid": "^11.0.3"
   }
 }
