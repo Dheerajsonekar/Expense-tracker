@@ -20,7 +20,7 @@ exports.authenticate = async (req, res, next) => {
 
     req.user = {
       id: user.id,
-      isPremium: user.isPremium
+      isPremium: user.isPremium,
     };
 
     next();

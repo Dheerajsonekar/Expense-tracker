@@ -39,30 +39,31 @@ exports.verifyPayment = async (req, res) => {
       .update(body)
       .digest("hex");
 
-      if(expectedSignature != razorpay_signature){
-        return res.status(400).json({message:"Payment verification failed"})
-      }
+    if (expectedSignature != razorpay_signature) {
+      return res.status(400).json({ message: "Payment verification failed" });
+    }
 
-      const userId = req.user.id;
-      await User.update({isPremium: true}, {where:{id: userId}})
-     
+    const userId = req.user.id;
+    await User.update({ isPremium: true }, { where: { id: userId } });
 
-      await Payment.create({
+    await Payment.create(
+      {
         id: razorpay_order_id,
         userId,
         amount: 100,
-        status: "success"
-      },{transaction: t})
+        status: "success",
+      },
+      { transaction: t }
+    );
 
-      await t.commit();
+    await t.commit();
 
-      return res.status(200).json({message: "Payment verification successfull"});
-
-
+    return res
+      .status(200)
+      .json({ message: "Payment verification successfull" });
   } catch (err) {
-
     await t.rollback();
-    console.error('Error in verifying payment', err)
-    return res.status(500).json({message: "Payment verification failed"})
+    console.error("Error in verifying payment", err);
+    return res.status(500).json({ message: "Payment verification failed" });
   }
 };

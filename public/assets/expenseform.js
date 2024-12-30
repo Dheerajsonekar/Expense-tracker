@@ -142,7 +142,7 @@ if (username) {
       })`;
       if (user.premium) {
         premiumBtn.style.display = "none";
-        
+
         leaderboardBtn.style.display = "inline";
         leaderboardBtn.addEventListener("click", async (e) => {
           e.preventDefault();

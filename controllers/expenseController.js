@@ -9,18 +9,21 @@ exports.expensePost = async (req, res) => {
   const t = await Sequelize.transaction();
 
   try {
-    const response = await expense.create({
-      amount,
-      description,
-      category,
-      userId: req.user.id,
-    }, {transaction: t});
+    const response = await expense.create(
+      {
+        amount,
+        description,
+        category,
+        userId: req.user.id,
+      },
+      { transaction: t }
+    );
     if (response) {
       // Update the totalAmount in the User table
       await User.increment("totalAmount", {
         by: parseFloat(amount),
         where: { id: req.user.id },
-        transaction: t
+        transaction: t,
       });
 
       await t.commit();
@@ -58,12 +61,14 @@ exports.deleteExpense = async (req, res) => {
     // Find the expense to get the amount
     const expenseToDelete = await expense.findOne({
       where: { id: expenseId, userId: req.user.id },
-      transaction: t
+      transaction: t,
     });
 
     if (!expenseToDelete) {
       await t.rollback();
-      return res.status(404).json({ message: "Expense not found || or unauthorized action!" });
+      return res
+        .status(404)
+        .json({ message: "Expense not found || or unauthorized action!" });
     }
 
     const amount = expenseToDelete.amount;
@@ -71,22 +76,24 @@ exports.deleteExpense = async (req, res) => {
     // Delete the expense
     const response = await expense.destroy({
       where: { id: expenseId, userId: req.user.id },
-      transaction: t
+      transaction: t,
     });
 
     if (response) {
       // Decrement the totalAmount in the User table
-      await User.increment('totalAmount', {
+      await User.increment("totalAmount", {
         by: -parseFloat(amount),
         where: { id: req.user.id },
-        transaction: t
+        transaction: t,
       });
 
       await t.commit();
       return res.status(200).json({ message: "Expense deleted successfully" });
     } else {
       await t.rollback();
-      return res.status(404).json({ message: "Expense not found || or unauthorized action!" });
+      return res
+        .status(404)
+        .json({ message: "Expense not found || or unauthorized action!" });
     }
   } catch (err) {
     await t.rollback();
@@ -95,26 +102,29 @@ exports.deleteExpense = async (req, res) => {
   }
 };
 
-
 // premium feature leaderboard
 exports.getboard = async (req, res) => {
   try {
     const response = await User.findAll({
       where: { isPremium: true },
-      attributes: ['name', 'totalAmount'], 
-      order: [['totalAmount', 'DESC']], 
+      attributes: ["name", "totalAmount"],
+      order: [["totalAmount", "DESC"]],
     });
 
-    
     const leaderboard = response.map((user) => ({
       username: user.name, // User's name
       totalAmount: user.totalAmount || 0, // Total amount
     }));
 
-    console.log('Formatted Leaderboard Data:', leaderboard);
+    console.log("Formatted Leaderboard Data:", leaderboard);
     return res.status(200).json(leaderboard);
   } catch (err) {
-    console.error('Error in getboard API:', err.message, err);
-    return res.status(500).json({ message: 'Failed to fetch leaderboard data.', error: err.message });
+    console.error("Error in getboard API:", err.message, err);
+    return res
+      .status(500)
+      .json({
+        message: "Failed to fetch leaderboard data.",
+        error: err.message,
+      });
   }
 };
