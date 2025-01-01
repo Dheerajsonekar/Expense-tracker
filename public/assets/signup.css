@@ -1,0 +1,112 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 15px;
+    background: #1abc9c;
+    overflow: hidden;
+}
+
+.wrapper {
+    max-width: 500px;
+    width: 100%;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 4px 10px 1px rgba(0, 0, 0, 0.1)
+}
+
+.wrapper .title {
+    height: 120px;
+    color: #fff;
+    background: #16a085;
+    border-radius: 5px 5px 0px 0px;
+    font-size: 30px;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrapper form {
+    padding: 25px 35px;
+}
+
+.wrapper form .row {
+    height: 60px;
+    margin-top:15px;
+    position: relative;
+}
+
+.wrapper form .row input {
+    height: 100%;
+    width: 100%;
+    outline: none;
+    border-radius: 5px;
+    padding-left: 70px;
+    border: 1px solid lightgrey;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+form .row input:focus {
+    border-color:#16a085;
+}
+
+form .row input:placeholder {
+    color:#999;
+}
+
+.wrapper form .row i {
+    position: absolute;
+    background: #16a085;
+    height:100%;
+    width: 55px;
+    color: #fff;
+    border-radius: 5px 0 0 5px;
+    border: 1px solid #16a085;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.wrapper form .button input {
+    margin-top: 20px;
+    color: #fff;
+    background: #16a085;
+    padding-left: 0;
+    font-size: 20px;
+    font-weight: 500;
+    border: 1px solid #16a085;
+    cursor: pointer;
+}
+
+.wrapper .button input:hover {
+    background: #12876f;
+}
+
+.wrapper form .login-link {
+    margin-top: 45px;
+    font-size: 17px;
+    text-align: center;
+}
+
+.wrapper form .login-link a {
+    text-decoration: none;
+    color: #16a085;
+}
+
+.wrapper form .login-link a:hover {
+    text-decoration: underline;
+}

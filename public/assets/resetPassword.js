@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const form = document.querySelector("form");
 const resetPassword = document.getElementById("resetPassword");
 form.addEventListener("submit", async (e) => {
@@ -6,13 +8,15 @@ form.addEventListener("submit", async (e) => {
   const password = resetPassword.value;
   const requestId = window.location.pathname.split("/").pop();
   try {
-    const response = await fetch(`/api/password/resetPassword/${requestId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ newPassword: password }),
-    });
+    const response = await axios.post(
+      `/api/password/resetPassword/${requestId}`,
+      { newPassword: password },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
 
-    if (response.ok) {
+    if (response.status === 200) {
       alert("Password has been reset successfully");
       window.location.href = "/login.html";
     }

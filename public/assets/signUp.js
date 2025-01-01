@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const signupform = document.getElementById("signupForm");
 
 if (signupform) {
@@ -7,14 +9,12 @@ if (signupform) {
     const data = Object.fromEntries(formData.entries());
 
     try {
-      const response = await fetch("/api/signup", {
-        method: "POST",
+      const response = await axios.post("/api/signup", data, {
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
       });
 
-      if (!response.ok) {
-        throw new Error("failed to fetch.");
+      if (!response.status !== 201) {
+        throw new Error("failed to signUp.");
       }
       signupform.reset();
       const result = await response.json();

@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const loginform = document.getElementById("loginForm");
 
 if (loginform) {
@@ -7,14 +9,12 @@ if (loginform) {
     const data = Object.fromEntries(formData.entries());
 
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
+      const response = await axios.post("/api/login", data, {
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
       });
 
-      if (!response.ok) {
-        throw new Error("failed to fetch.");
+      if (!response.status !== 200 ) {
+        throw new Error("failed to login.");
       }
       loginform.reset();
 

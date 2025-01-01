@@ -116,7 +116,7 @@ exports.forgotPassword = async (req, res) => {
         subject: "Reset password",
         textContent: `Click on the link to reset password http://localhost:3000/password/resetPassword/${requestId}`,
       });
-      console.log("email send response");
+      console.log("email response sent");
 
       await forgotPasswordRequests.create({
         id: requestId,

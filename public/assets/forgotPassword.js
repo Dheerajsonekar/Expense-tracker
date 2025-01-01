@@ -1,17 +1,21 @@
+import axios from "axios";
+
 const form = document.querySelector("form");
 const email = document.querySelector("#email");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const emailValue = email.value;
-  console.log("submitting email", emailValue);
+
   try {
-    const response = await fetch("api/forgotPassword", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: emailValue }),
-    });
-    if (response.ok) {
+    const response = await axios.post(
+      "api/forgotPassword",
+      { email: emailValue },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    if (response.status === 200) {
       const data = await response.json();
       console.log("response form api", data);
     }
