@@ -8,20 +8,21 @@
     <title></title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="./assets/style.css">
+    <link rel="stylesheet" href="./assets/expenseform.css">
 </head>
 
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li id="userNameDisplay"><span id="username">User</span></li>
-                <li><button id="premium">Buy Premium</button></li>
-                <li><button id="leaderboard">Leaderboard</button></li>
-                <li><button id="logoutbtn">logout</button></li>
-            </ul>
-        </nav>
-    </header>
+    <div class="header">
+        <a href="#" class="logo">Expense Tracker</a>
+        <div class="header-right">
+            <a id="premium" href="#">Buy Premium</a>
+            <a href="#" id="downloadbtn">Download</a>
+            <a id="leaderboard" href="#">Leaderboard</a>
+            <a href=""><span id="username">User</span></a>
+            <a id="logoutbtn" href="#">Logout</a>
+        </div>
+    </div>
+    
     <div id="expense-div">
         <u>
             <h2 class="tittle">Add Expense</h2>
@@ -54,9 +55,12 @@
         <ul id="list"></ul>
         <h2 class="tittle" id="leaderboardTittle">leaderboard</h2>
         <ul id="leaderboardList"></ul>
+        <ul id="downloadList"></ul>
+
     </div>
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script src="./assets/expenseform.js" async defer></script>
 </body>

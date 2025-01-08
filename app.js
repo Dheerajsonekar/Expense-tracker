@@ -10,7 +10,7 @@ const User = require('./models/User');
 const Expense = require('./models/Expense');
 const Payment = require('./models/Payment');
 const forgotPasswordRequests = require("./models/forgotPasswordRequests");
-
+const DownloadedFile = require("./models/downloadedFiles");
 
 
 
@@ -36,6 +36,8 @@ Payment.belongsTo(User, {foreignKey: "userId"})
 User.hasMany(forgotPasswordRequests, {foreignKey:"userId", onDelete: "CASCADE"});
 forgotPasswordRequests.belongsTo(User, {foreignkey:"userId"});
 
+User.hasMany(DownloadedFile, { foreignKey: 'userId',  onDelete: "CASCADE" });
+DownloadedFile.belongsTo(User, { foreignKey: 'userId' });
 
 
 

@@ -6,229 +6,266 @@ const premiumBtn = document.getElementById("premium");
 const leaderboardBtn = document.getElementById("leaderboard");
 const leaderboardList = document.getElementById("leaderboardList");
 const leaderboardTittle = document.getElementById("leaderboardTittle");
-// expense section
-if (expenseform) {
-  showExpense();
-  expenseform.addEventListener("submit", async (e) => {
-    e.preventDefault();
+const DownloadExpense = document.getElementById("downloadbtn");
+const filesList = document.getElementById("downloadList");
 
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-    const token = localStorage.getItem("authToken");
+
+const token = localStorage.getItem("authToken");
+
+(async function initializeExpenseform() {
+  if (expenseform) {
+    await showExpense();
+    expenseform.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+      
+
+      try {
+        const response = await axios.post("api/expense", data, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status !== 201) {
+          throw new Error("Failed in axios");
+        }
+
+        expenseform.reset();
+        console.log(response.data);
+        await showExpense();
+      } catch (err) {
+        console.log("Axios failed in post expense", err);
+      }
+    });
+
+    async function showExpense() {
+      
+
+      try {
+        const expenses = await axios.get("api/showexpense", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (expenselist) {
+          expenselist.innerHTML = "";
+        }
+
+        expenses.data.forEach((expense) => {
+          const newList = document.createElement("li");
+          newList.innerHTML = `🔹 💸 <strong>Amount:</strong> ${expense.amount} 
+                📝 <strong>Description:</strong> ${expense.description} 
+                🗂️ <strong>Category:</strong> ${expense.category} 
+                <button class="delete-btn">🗑️ Delete</button>`;
+          if (expenselist) {
+            expenselist.appendChild(newList);
+          }
+
+          const deleteBtn = newList.querySelector(".delete-btn");
+          deleteBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const expenseId = expense.id;
+
+            try {
+              const result = await axios.delete(`/api/expense/${expenseId}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+              e.target.parentNode.remove();
+
+              if (result.status === 200) {
+                showExpense();
+                console.log("Deleted successfully!");
+              }
+            } catch (err) {
+              console.log("Failed to delete in script error", err);
+            }
+          });
+        });
+      } catch (err) {
+        console.error("Error while showing expenses", err);
+      }
+    }
+  }
+
+  if (logoutbtn) {
+    logoutbtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      localStorage.removeItem("authToken");
+      window.location.href = "./login.html";
+      console.log("User logged out.");
+    });
+  }
+
+  if (username) {
+    (async function fetchUserDetails() {
+      
+      if (!token) {
+        console.log("Token does not exist");
+        window.location.href = "./login.html";
+      }
+      try {
+        const user = await axios.get("/api/getuser", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        username.textContent = `${user.data.username} (${
+          user.data.premium ? "Premium" : "Free"
+        })`;
+        if (user.data.premium) {
+          premiumBtn.style.display = "none";
+          leaderboardBtn.style.display = "inline";
+          leaderboardBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            leaderboardTittle.style.display = "block";
+            try {
+              const response = await axios.get("api/premium/leaderboard", {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+
+              console.log("Leaderboard Data:", response.data);
+
+              if (Array.isArray(response.data)) {
+                leaderboardList.innerHTML = "";
+                response.data.forEach((user, index) => {
+                  const newList = document.createElement("li");
+                  newList.textContent = `${index + 1}. ${user.username} - ₹${
+                    user.totalAmount
+                  }`;
+                  leaderboardList.appendChild(newList);
+                });
+              } else {
+                console.error(
+                  "Leaderboard API returned a non-array response:",
+                  response.data
+                );
+              }
+            } catch (err) {
+              console.error("Failed to fetch leaderboard data:", err);
+            }
+          });
+        }
+      } catch (err) {
+        console.log("Failed to get user details", err);
+      }
+    })();
+  }
+
+  premiumBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    
 
     try {
-      const response = await fetch("api/expense", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: ` Bearer ${token}`,
+      const response = await axios.post(
+        "api/premium",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Response of premium:", response.data);
+
+      const options = {
+        key: response.data.key,
+        amount: response.data.amount,
+        currency: "INR",
+        name: "Premium membership",
+        image: "https://yourdomain.com/logo.png",
+
+        description: "Unlock premium features",
+        order_id: response.data.orderId,
+        handler: async (paymentResponse) => {
+          try {
+            console.log("Response of verify payment:", paymentResponse);
+            await axios.post(
+              "api/premium/verify",
+              {
+                razorpay_order_id: paymentResponse.razorpay_order_id,
+                razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                razorpay_signature: paymentResponse.razorpay_signature,
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            alert("Payment successful. You are now a premium user");
+            window.location.reload();
+          } catch (err) {
+            console.error("Failed to verify payment", err);
+          }
         },
-        body: JSON.stringify(data),
-      });
+        theme: { color: "#3399cc" },
+      };
 
-      if (!response.ok) {
-        throw new Error("failed in fetch");
-      }
-
-      expenseform.reset();
-
-      const result = await response.json();
-      console.log(result);
-
-      await showExpense();
+      const razorpay = new Razorpay(options);
+      razorpay.open();
     } catch (err) {
-      console.log(" fetch failed in post expense", err);
+      console.error("Failed to process premium request", err);
     }
   });
 
-  // show expense section
-  async function showExpense() {
-    const token = localStorage.getItem("authToken");
+DownloadExpense.addEventListener('click', async (e)=>{
+  e.preventDefault();
 
-    try {
-      const response = await fetch("api/showexpense", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: ` Bearer ${token}`,
-        },
-      });
-
-      // expense list
-      if (expenselist) {
-        expenselist.innerHTML = "";
-      }
-      const expenses = await response.json();
-
-      expenses.forEach((expense) => {
-        const newList = document.createElement("li");
-        newList.innerHTML = ` 🔹 💸 <strong>Amount:</strong> ${expense.amount} 
-                📝 <strong>Description:</strong> ${expense.description} 
-                🗂️ <strong>Category:</strong> ${expense.category} 
-                 
-                <button class="delete-btn">🗑️ Delete</button>`;
-        if (expenselist) {
-          expenselist.appendChild(newList);
-        }
-
-        // delete btn functionality
-        const deleteBtn = newList.querySelector(".delete-btn");
-
-        deleteBtn.addEventListener("click", async (e) => {
-          e.preventDefault();
-          const expenseId = expense.id;
-          const token = localStorage.getItem("authToken");
-
-          try {
-            const result = await fetch(`/api/expense/${expenseId}`, {
-              method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-            e.target.parentNode.remove();
-            const response = await result.json();
-            if (response.ok) {
-              showExpense();
-              console.log("deleted successfully!");
-            }
-          } catch (err) {
-            console.log("failed to delete in scripterror", err);
-          }
-        });
-      });
-    } catch (err) {
-      console.error("error while showing expenses.");
+  try{
+    const response = await axios.get("/api/download", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    if(response.status === 200){
+      console.log("successfully downloaded file. ", response.data);
+      await fetchDownloadedFiles();
     }
+  }catch(err){
+    console.error("failed to download ", err);
+  }
+
+})
+
+async function fetchDownloadedFiles() {
+  try {
+    const response = await axios.get('/api/downloaded-files', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    
+    filesList.innerHTML = '';
+
+    response.data.files.forEach((file) => {
+      const listItem = document.createElement('li');
+      listItem.innerHTML = `
+        📄 <strong>${file.fileName}</strong> - 
+        📅 Downloaded on: ${new Date(file.downloadedAt).toLocaleString()} 
+        <a href="${file.fileUrl}" target="_blank">🔗 Download</a>
+      `;
+      filesList.appendChild(listItem);
+    });
+  } catch (err) {
+    console.error('Failed to fetch downloaded files:', err);
   }
 }
 
-// logout btn section
-if (logoutbtn) {
-  logoutbtn.addEventListener("click", async (e) => {
-    e.preventDefault();
 
-    localStorage.removeItem("authToken");
-
-    window.location.href = "./login.html";
-
-    console.log("User logged out.");
-  });
-}
-
-// display username section
-
-if (username) {
-  (async function fetchUserDetails() {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      console.log("token does not exit");
-
-      window.location.href = "./login.html";
-    }
-    try {
-      const response = await fetch("/api/getuser", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const user = await response.json();
-
-      username.textContent = `${user.username} (${
-        user.premium ? "Premium" : "Free"
-      })`;
-      if (user.premium) {
-        premiumBtn.style.display = "none";
-
-        leaderboardBtn.style.display = "inline";
-        leaderboardBtn.addEventListener("click", async (e) => {
-          e.preventDefault();
-
-          const token = localStorage.getItem("authToken");
-          leaderboardTittle.style.display = "block";
-          try {
-            const response = await fetch("api/premium/leaderboard", {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            });
-
-            const result = await response.json();
-            // Debug to confirm result is an array
-            console.log("Leaderboard Data:", result);
-
-            if (Array.isArray(result)) {
-              leaderboardList.innerHTML = ""; // Clear existing items
-              result.forEach((user, index) => {
-                const newList = document.createElement("li");
-                newList.textContent = `${index + 1}. ${user.username} - ₹${
-                  user.totalAmount
-                }`;
-                leaderboardList.appendChild(newList);
-              });
-            } else {
-              console.error(
-                "Leaderboard API returned a non-array response:",
-                result
-              );
-            }
-          } catch (err) {
-            console.error("Failed to fetch leaderboard data:", err);
-          }
-        });
-      }
-    } catch (err) {
-      console.log("failed to get name in script", err);
-    }
-  })();
-}
-
-// premium user section
-
-premiumBtn.addEventListener("click", async (e) => {
-  e.preventDefault();
-
-  const token = localStorage.getItem("authToken");
-
-  const response = await fetch("api/premium", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const { orderId, key } = await response.json();
-
-  const options = {
-    key: key,
-    amount: 100,
-    currency: "INR",
-    name: "Premium membership",
-    description: "unlock premium features",
-    order_id: orderId,
-    handler: async (response) => {
-      await fetch("api/premium/verify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(response),
-      });
-      alert("Payment successful. You are now a premium user");
-
-      window.location.reload();
-    },
-
-    theme: "#3399cc",
-  };
-
-  const razorpay = new Razorpay(options);
-  razorpay.open();
-});
+})();

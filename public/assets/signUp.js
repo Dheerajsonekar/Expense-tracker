@@ -1,4 +1,4 @@
-import axios from "axios";
+
 
 const signupform = document.getElementById("signupForm");
 
@@ -13,13 +13,13 @@ if (signupform) {
         headers: { "Content-Type": "application/json" },
       });
 
-      if (!response.status !== 201) {
+      if (response.status !== 201) {
         throw new Error("failed to signUp.");
       }
       signupform.reset();
-      const result = await response.json();
+      
 
-      console.log(result);
+      console.log('successful signup',response.data);
 
       //redirect to login page after successfull signup
       window.location.href = "./login.html";

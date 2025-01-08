@@ -1,4 +1,4 @@
-import axios from "axios";
+
 
 const loginform = document.getElementById("loginForm");
 
@@ -13,13 +13,14 @@ if (loginform) {
         headers: { "Content-Type": "application/json" },
       });
 
-      if (!response.status !== 200 ) {
+      if (response.status !== 200 ) {
         throw new Error("failed to login.");
       }
+      
       loginform.reset();
 
-      const result = await response.json();
-      localStorage.setItem("authToken", result.token);
+      
+      localStorage.setItem("authToken", response.data.token);
 
       //After login redirect to expense page
       window.location.href = "./expenseform.html";

@@ -1,7 +1,53 @@
 const expense = require("../models/Expense");
 const User = require("../models/User");
+const DownloadedFiles = require("../models/downloadedFiles");
 const sequelize = require("sequelize");
 const Sequelize = require("../util/database");
+const S3Service = require("../services/s3Service");
+
+// Download expenses
+
+exports.getDownloadedFiles = async (req, res) =>{
+  try {
+    const files = await DownloadedFiles.findAll({
+      where: { userId: req.user.id },
+      attributes: ['fileName', 'fileUrl', 'downloadedAt'],
+      order: [['downloadedAt', 'DESC']],
+    });
+
+    return res.status(200).json({ success: true, files });
+  } catch (err) {
+    console.error('Failed to fetch downloaded files:', err);
+    return res.status(500).json({ success: false, message: 'Failed to fetch files.' });
+  }
+}
+
+exports.downloadExpenses = async (req, res) => {
+  const expenses = await expense.findAll({
+    where: { userId: req.user.id },
+  });
+  const stringiFiedExpense = JSON.stringify(expenses);
+
+  const userId = req.user.id;
+  const fileName = `Expense${userId}/${new Date()}.txt`;
+
+  try {
+    const fileUrl = await S3Service.uploadToS3(stringiFiedExpense, fileName);
+
+
+    await DownloadedFiles.create({
+      userId,
+      fileName,
+      fileUrl,
+    });
+
+
+    res.status(200).json({ fileUrl, success: true });
+  } catch (err) {
+    console.error("failed to download at api", err);
+    return res.status(500).json({ fileUrl: "", success: false, err: err });
+  }
+};
 
 // expense post api
 exports.expensePost = async (req, res) => {
@@ -120,11 +166,9 @@ exports.getboard = async (req, res) => {
     return res.status(200).json(leaderboard);
   } catch (err) {
     console.error("Error in getboard API:", err.message, err);
-    return res
-      .status(500)
-      .json({
-        message: "Failed to fetch leaderboard data.",
-        error: err.message,
-      });
+    return res.status(500).json({
+      message: "Failed to fetch leaderboard data.",
+      error: err.message,
+    });
   }
 };

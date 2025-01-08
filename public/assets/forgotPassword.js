@@ -1,4 +1,4 @@
-import axios from "axios";
+
 
 const form = document.querySelector("form");
 const email = document.querySelector("#email");

@@ -1,4 +1,4 @@
-import axios from "axios";
+
 
 const form = document.querySelector("form");
 const resetPassword = document.getElementById("resetPassword");
