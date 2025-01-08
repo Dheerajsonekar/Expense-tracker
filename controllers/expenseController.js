@@ -1,26 +1,28 @@
 const expense = require("../models/Expense");
 const User = require("../models/User");
-const DownloadedFiles = require("../models/downloadedFiles");
+const DownloadedFile = require("../models/downloadedFiles");
 const sequelize = require("sequelize");
 const Sequelize = require("../util/database");
 const S3Service = require("../services/s3Service");
 
 // Download expenses
 
-exports.getDownloadedFiles = async (req, res) =>{
+exports.getDownloadedFiles = async (req, res) => {
   try {
-    const files = await DownloadedFiles.findAll({
+    const files = await DownloadedFile.findAll({
       where: { userId: req.user.id },
-      attributes: ['fileName', 'fileUrl', 'downloadedAt'],
-      order: [['downloadedAt', 'DESC']],
+      attributes: ["fileName", "fileUrl", "downloadedAt"],
+      order: [["downloadedAt", "DESC"]],
     });
 
     return res.status(200).json({ success: true, files });
   } catch (err) {
-    console.error('Failed to fetch downloaded files:', err);
-    return res.status(500).json({ success: false, message: 'Failed to fetch files.' });
+    console.error("Failed to fetch downloaded files:", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch files." });
   }
-}
+};
 
 exports.downloadExpenses = async (req, res) => {
   const expenses = await expense.findAll({
@@ -34,13 +36,15 @@ exports.downloadExpenses = async (req, res) => {
   try {
     const fileUrl = await S3Service.uploadToS3(stringiFiedExpense, fileName);
 
+    if (!fileUrl) {
+      throw new Error("File URL generation failed.");
+    }
 
-    await DownloadedFiles.create({
+    await DownloadedFile.create({
       userId,
       fileName,
       fileUrl,
     });
-
 
     res.status(200).json({ fileUrl, success: true });
   } catch (err) {
@@ -82,18 +86,29 @@ exports.expensePost = async (req, res) => {
   }
 };
 
-// show expense api
+// show expense api with pagination
 exports.showExpenses = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query; // Default values if not provided
+  const offset = (page - 1) * limit;
+
   try {
-    const response = await expense.findAll({
+    const { count, rows } = await expense.findAndCountAll({
       where: { userId: req.user.id },
-      orders: [["createdAt", "DESC"]],
+      order: [["createdAt", "DESC"]],
+      offset: parseInt(offset), // Skip previous records
+      limit: parseInt(limit), // Limit the number of records
     });
-    if (response) {
-      return res.status(200).json(response);
-    }
+
+    const totalPages = Math.ceil(count / limit);
+
+    return res.status(200).json({
+      currentPage: parseInt(page),
+      totalPages,
+      totalExpenses: count,
+      expenses: rows,
+    });
   } catch (err) {
-    console.error("failed to showExpenses");
+    console.error("failed to showExpenses", err);
     return res.status(500).json({ message: "failed to show expenses." });
   }
 };

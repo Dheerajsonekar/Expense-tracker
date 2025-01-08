@@ -8,19 +8,18 @@ const leaderboardList = document.getElementById("leaderboardList");
 const leaderboardTittle = document.getElementById("leaderboardTittle");
 const DownloadExpense = document.getElementById("downloadbtn");
 const filesList = document.getElementById("downloadList");
-
+const paginationDiv = document.getElementById("pagination");
 
 const token = localStorage.getItem("authToken");
 
 (async function initializeExpenseform() {
   if (expenseform) {
-    await showExpense();
+    await showExpense(1);
     expenseform.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
-      
 
       try {
         const response = await axios.post("api/expense", data, {
@@ -36,22 +35,25 @@ const token = localStorage.getItem("authToken");
 
         expenseform.reset();
         console.log(response.data);
-        await showExpense();
+        await showExpense(1);
       } catch (err) {
         console.log("Axios failed in post expense", err);
       }
     });
 
-    async function showExpense() {
-      
-
+    async function showExpense(page = 1) {
       try {
-        const expenses = await axios.get("api/showexpense", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          `api/showexpense?page=${page}&limit=10`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const { expenses, totalPages, currentPage } = response.data;
 
         if (expenselist) {
           expenselist.innerHTML = "";
@@ -81,7 +83,7 @@ const token = localStorage.getItem("authToken");
               e.target.parentNode.remove();
 
               if (result.status === 200) {
-                showExpense();
+                showExpense(currentPage);
                 console.log("Deleted successfully!");
               }
             } catch (err) {
@@ -89,6 +91,39 @@ const token = localStorage.getItem("authToken");
             }
           });
         });
+
+      
+        // Render pagination controls
+        
+        if (!paginationDiv) {
+          const newPaginationDiv = document.createElement("div");
+          newPaginationDiv.id = "pagination";
+          document.body.appendChild(newPaginationDiv);
+        } else {
+          paginationDiv.innerHTML = "";
+        }
+
+        if (currentPage > 1) {
+          const prevButton = document.createElement("button");
+          prevButton.textContent = "Previous";
+          prevButton.addEventListener("click", () =>
+            showExpense(currentPage - 1)
+          );
+          paginationDiv.appendChild(prevButton);
+        }
+
+        const pageInfo = document.createElement("span");
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        paginationDiv.appendChild(pageInfo);
+
+        if (currentPage < totalPages) {
+          const nextButton = document.createElement("button");
+          nextButton.textContent = "Next";
+          nextButton.addEventListener("click", () =>
+            showExpense(currentPage + 1)
+          );
+          paginationDiv.appendChild(nextButton);
+        }
       } catch (err) {
         console.error("Error while showing expenses", err);
       }
@@ -106,7 +141,6 @@ const token = localStorage.getItem("authToken");
 
   if (username) {
     (async function fetchUserDetails() {
-      
       if (!token) {
         console.log("Token does not exist");
         window.location.href = "./login.html";
@@ -166,7 +200,6 @@ const token = localStorage.getItem("authToken");
 
   premiumBtn.addEventListener("click", async (e) => {
     e.preventDefault();
-    
 
     try {
       const response = await axios.post(
@@ -224,48 +257,44 @@ const token = localStorage.getItem("authToken");
     }
   });
 
-DownloadExpense.addEventListener('click', async (e)=>{
-  e.preventDefault();
+  DownloadExpense.addEventListener("click", async (e) => {
+    e.preventDefault();
 
-  try{
-    const response = await axios.get("/api/download", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    if(response.status === 200){
-      console.log("successfully downloaded file. ", response.data);
-      await fetchDownloadedFiles();
+    try {
+      const response = await axios.get("/api/download", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        console.log("successfully downloaded file. ", response.data);
+        await fetchDownloadedFiles();
+      }
+    } catch (err) {
+      console.error("failed to download ", err);
     }
-  }catch(err){
-    console.error("failed to download ", err);
-  }
+  });
 
-})
+  async function fetchDownloadedFiles() {
+    try {
+      const response = await axios.get("/api/downloaded-files", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-async function fetchDownloadedFiles() {
-  try {
-    const response = await axios.get('/api/downloaded-files', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+      filesList.innerHTML = "";
 
-    
-    filesList.innerHTML = '';
-
-    response.data.files.forEach((file) => {
-      const listItem = document.createElement('li');
-      listItem.innerHTML = `
+      response.data.files.forEach((file) => {
+        const listItem = document.createElement("li");
+        listItem.innerHTML = `
         📄 <strong>${file.fileName}</strong> - 
         📅 Downloaded on: ${new Date(file.downloadedAt).toLocaleString()} 
         <a href="${file.fileUrl}" target="_blank">🔗 Download</a>
       `;
-      filesList.appendChild(listItem);
-    });
-  } catch (err) {
-    console.error('Failed to fetch downloaded files:', err);
+        filesList.appendChild(listItem);
+      });
+    } catch (err) {
+      console.error("Failed to fetch downloaded files:", err);
+    }
   }
-}
-
-
 })();
