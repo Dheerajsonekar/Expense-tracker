@@ -9,12 +9,25 @@ const leaderboardTittle = document.getElementById("leaderboardTittle");
 const DownloadExpense = document.getElementById("downloadbtn");
 const filesList = document.getElementById("downloadList");
 const paginationDiv = document.getElementById("pagination");
+const expenseCountSelect = document.getElementById("expenseCountSelect");
 
 const token = localStorage.getItem("authToken");
 
 (async function initializeExpenseform() {
   if (expenseform) {
-    await showExpense(1);
+    const storedExpenseCount = localStorage.getItem("expenseCount") || 10; // Default to 10 if not set
+    expenseCountSelect.value = storedExpenseCount;
+    // Show expenses with the selected count
+    await showExpense(1, storedExpenseCount);
+
+    expenseCountSelect.addEventListener("change", async (e) => {
+      const selectedCount = e.target.value;
+      localStorage.setItem("expenseCount", selectedCount); // Store in localStorage
+
+      // Refresh the expenses display based on the selected count
+      await showExpense(1, selectedCount);
+    });
+
     expenseform.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -41,10 +54,10 @@ const token = localStorage.getItem("authToken");
       }
     });
 
-    async function showExpense(page = 1) {
+    async function showExpense(page = 1, limit = 10) {
       try {
         const response = await axios.get(
-          `api/showexpense?page=${page}&limit=10`,
+          `api/showexpense?page=${page}&limit=${limit}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -92,9 +105,8 @@ const token = localStorage.getItem("authToken");
           });
         });
 
-      
         // Render pagination controls
-        
+
         if (!paginationDiv) {
           const newPaginationDiv = document.createElement("div");
           newPaginationDiv.id = "pagination";
