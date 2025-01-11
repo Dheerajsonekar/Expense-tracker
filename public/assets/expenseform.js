@@ -13,7 +13,32 @@ const expenseCountSelect = document.getElementById("expenseCountSelect");
 
 const token = localStorage.getItem("authToken");
 
+const addExpenseButton = document.getElementById("addExpenseButton");
+const expenseFormOverlay = document.getElementById("expenseFormOverlay");
+const closeExpenseForm = document.getElementById("closeExpenseForm");
+
+// Show the overlay when clicking the floating button
+addExpenseButton.addEventListener("click", () => {
+    expenseFormOverlay.classList.remove("hidden");
+});
+
+// Hide the overlay when clicking the close button
+closeExpenseForm.addEventListener("click", () => {
+    expenseFormOverlay.classList.add("hidden");
+});
+
+// Optional: Close the overlay when clicking outside the form
+expenseFormOverlay.addEventListener("click", (e) => {
+    if (e.target === expenseFormOverlay) {
+        expenseFormOverlay.classList.add("hidden");
+    }
+});
+
+
+
+
 (async function initializeExpenseform() {
+  await  fetchDownloadedFiles();
   if (expenseform) {
     const storedExpenseCount = localStorage.getItem("expenseCount") || 10; // Default to 10 if not set
     expenseCountSelect.value = storedExpenseCount;
@@ -48,7 +73,7 @@ const token = localStorage.getItem("authToken");
 
         expenseform.reset();
         console.log(response.data);
-        await showExpense(1);
+        await showExpense(1, 10);
       } catch (err) {
         console.log("Axios failed in post expense", err);
       }
@@ -72,7 +97,7 @@ const token = localStorage.getItem("authToken");
           expenselist.innerHTML = "";
         }
 
-        expenses.data.forEach((expense) => {
+        expenses.forEach((expense) => {
           const newList = document.createElement("li");
           newList.innerHTML = `🔹 💸 <strong>Amount:</strong> ${expense.amount} 
                 📝 <strong>Description:</strong> ${expense.description} 
@@ -96,7 +121,7 @@ const token = localStorage.getItem("authToken");
               e.target.parentNode.remove();
 
               if (result.status === 200) {
-                showExpense(currentPage);
+                showExpense(currentPage, limit);
                 console.log("Deleted successfully!");
               }
             } catch (err) {
@@ -119,20 +144,20 @@ const token = localStorage.getItem("authToken");
           const prevButton = document.createElement("button");
           prevButton.textContent = "Previous";
           prevButton.addEventListener("click", () =>
-            showExpense(currentPage - 1)
+            showExpense(currentPage - 1, limit)
           );
           paginationDiv.appendChild(prevButton);
         }
 
         const pageInfo = document.createElement("span");
-        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        pageInfo.textContent = ` Page ${currentPage} of ${totalPages} `;
         paginationDiv.appendChild(pageInfo);
 
         if (currentPage < totalPages) {
           const nextButton = document.createElement("button");
           nextButton.textContent = "Next";
           nextButton.addEventListener("click", () =>
-            showExpense(currentPage + 1)
+            showExpense(currentPage + 1, limit)
           );
           paginationDiv.appendChild(nextButton);
         }
@@ -170,10 +195,10 @@ const token = localStorage.getItem("authToken");
         })`;
         if (user.data.premium) {
           premiumBtn.style.display = "none";
-          leaderboardBtn.style.display = "inline";
+          
           leaderboardBtn.addEventListener("click", async (e) => {
             e.preventDefault();
-            leaderboardTittle.style.display = "block";
+            
             try {
               const response = await axios.get("api/premium/leaderboard", {
                 headers: {

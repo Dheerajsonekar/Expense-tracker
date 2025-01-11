@@ -24,70 +24,102 @@
         </div>
     </div>
 
+    <div class="floating-btn" id="addExpenseButton">➕</div>
 
-    <div class="wrapper">
-        <div class="title"><span>Add Expense</span></div>
-        <form id="expenseForm">
-            <div class="row">
-                <i class="fas fa-"></i>
-                <input type="text" name="amount" id="amount" placeholder="Amount">
+
+    <div id="expenseFormOverlay" class="overlay hidden">
+        <div class="overlay-content">
+            <div class="close-btn" id="closeExpenseForm">✖</div>
+            <div class="wrapper-main">
+                <div class="wrapper">
+                    <div class="title"><span>Add Expense</span></div>
+                    <form id="expenseForm">
+                        <div class="row">
+                            <i class="fas fa-"></i>
+                            <input type="text" name="amount" id="amount" placeholder="Amount">
+                        </div>
+                        <div class="row">
+                            <i class="fas fa-"></i>
+                            <input type="text" name="description" id="description" placeholder="Description">
+                        </div>
+
+                        <div class="row">
+                            <i class="fas fa-"></i>
+                            <select name="category" id="category">
+                                <option value="food">food</option>
+                                <option value="book">book</option>
+                                <option value="movie">movie</option>
+                                <option value="sport">sport</option>
+                                <option value="coding">coding</option>
+                                <option value="date">Date</option>
+                            </select>
+                        </div>
+
+                        <div class="row button">
+
+                            <input type="submit" class="submit-btn" value="Add">
+                        </div>
+
+
+
+
+
+                    </form>
+                </div>
             </div>
-            <div class="row">
-                <i class="fas fa-"></i>
-                <input type="text" name="description" id="description" placeholder="Description">
-            </div>
-
-            <div class="row">
-                <i class="fas fa-"></i>
-                <select name="category" id="category">
-                    <option value="food">food</option>
-                    <option value="book">book</option>
-                    <option value="movie">movie</option>
-                    <option value="sport">sport</option>
-                    <option value="coding">coding</option>
-                    <option value="date">Date</option>
-                </select>
-            </div>
-
-            <div class="row button">
-
-                <input type="submit" class="submit-btn" value="Add">
-            </div>
-
-
-
-
-
-        </form>
-    </div>
-
-    <div id="expenseList-div">
-
-        <h2 class="tittle">Expenses</h2>
-
-        <ul id="list"></ul>
-
-        <!-- Pagination Controls -->
-        <div id="pagination">
-            <button id="prevPage" disabled>Previous</button>
-            <span id="pageInfo"></span>
-            <button id="nextPage">Next</button>
         </div>
-
-        <!-- Dropdown to select number of expenses -->
-        <select id="expenseCountSelect">
-            <option value="5">5 Expenses</option>
-            <option value="10">10 Expenses</option>
-            <option value="20">20 Expenses</option>
-            <option value="30">30 Expenses</option>
-            <option value="40">40 Expenses</option>
-        </select>
-
-        <h2 class="tittle" id="leaderboardTittle">leaderboard</h2>
-        <ul id="leaderboardList"></ul>
-        <ul id="downloadList"></ul>
-
     </div>
+
+    <div class="wrapper-main-a">
+        <div class="wrapper-list">
+            <div class="title"><span>Expenses</span></div>
+            <div class="row-list">
+                <ul id="list"></ul>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div id="pagination">
+                <button id="prevPage" disabled>Previous</button>
+
+                <button id="nextPage">Next</button>
+            </div>
+
+            <!-- Dropdown to select number of expenses -->
+            <select id="expenseCountSelect">
+                <option value="5">5 Expenses</option>
+                <option value="10">10 Expenses</option>
+                <option value="20">20 Expenses</option>
+                <option value="30">30 Expenses</option>
+                <option value="40">40 Expenses</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="hidden">
+        <div class="wrapper-main">
+            <div class="wrapper">
+                <div class="title"><span>Leaderboard</span></div>
+                <div class="row">
+                    <ul id="leaderboardList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hidden">
+        <div class="wrapper-main">
+            <div class="wrapper">
+                <div class="title"><span>DownloadedFiles</span></div>
+
+                <div class="row">
+                    <ul id="downloadList"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
