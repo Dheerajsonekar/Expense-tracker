@@ -4,8 +4,13 @@ const sequelize = require("../util/database");
 const expense = sequelize.define(
   "expense",
   {
+    expenseType: {
+      type:DataTypes.STRING,
+      allowNull: false
+    },
+    
     amount: {
-      type: DataTypes.STRING,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
 

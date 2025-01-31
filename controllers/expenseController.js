@@ -5,8 +5,8 @@ const sequelize = require("sequelize");
 const Sequelize = require("../util/database");
 const S3Service = require("../services/s3Service");
 
-// Download expenses
 
+// get download files
 exports.getDownloadedFiles = async (req, res) => {
   try {
     const files = await DownloadedFile.findAll({
@@ -24,6 +24,7 @@ exports.getDownloadedFiles = async (req, res) => {
   }
 };
 
+// Download expenses
 exports.downloadExpenses = async (req, res) => {
   const expenses = await expense.findAll({
     where: { userId: req.user.id },
@@ -53,28 +54,39 @@ exports.downloadExpenses = async (req, res) => {
   }
 };
 
-// expense post api
+// add expense 
 exports.expensePost = async (req, res) => {
-  const { amount, description, category } = req.body;
+  const { expenseType, category, amount, description } = req.body;
   const t = await Sequelize.transaction();
 
   try {
     const response = await expense.create(
       {
+        expenseType,
+        category,
         amount,
         description,
-        category,
         userId: req.user.id,
       },
       { transaction: t }
     );
     if (response) {
       // Update the totalAmount in the User table
-      await User.increment("totalAmount", {
+      if(expenseType === "Debit"){
+        await User.increment("totalAmount", {
+          by: -parseFloat(amount),
+          where: { id: req.user.id },
+          transaction: t,
+        });
+      }
+      else{
+        await User.increment("totalAmount", {
         by: parseFloat(amount),
         where: { id: req.user.id },
         transaction: t,
       });
+      }
+      
 
       await t.commit();
       return res.status(201).json({ message: "expense posted successfully!" });
@@ -86,7 +98,7 @@ exports.expensePost = async (req, res) => {
   }
 };
 
-// show expense api with pagination
+// show expense 
 exports.showExpenses = async (req, res) => {
   const { page = 1, limit = 10 } = req.query; // Default values if not provided
   const offset = (page - 1) * limit;

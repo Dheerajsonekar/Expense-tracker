@@ -4,11 +4,14 @@ const User = require("../models/User");
 const Payment = require("../models/Payment");
 const sequelize = require("../util/database");
 
+// razorpay reference credential
 const razorpay = new Razorpay({
   key_id: process.env.razorPay_key_id,
   key_secret: process.env.razorPay_key_secret,
 });
 
+
+// buy premium 
 exports.createOrder = async (req, res) => {
   try {
     const amount = 100;
@@ -28,6 +31,8 @@ exports.createOrder = async (req, res) => {
   }
 };
 
+
+// payment verification 
 exports.verifyPayment = async (req, res) => {
   const t = await sequelize.transaction();
 

@@ -111,6 +111,9 @@ body {
     font-size: 18px;
     transition: all 0.3s ease;
 }
+
+
+
 .wrapper form .row select {
     height: 100%;
     width: 100%;

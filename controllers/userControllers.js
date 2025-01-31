@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const Sib = require("sib-api-v3-sdk");
 const { v4: uuidv4 } = require("uuid");
 
-// sign up api
+// register user
 exports.signupPost = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -33,7 +33,7 @@ exports.signupPost = async (req, res) => {
   }
 };
 
-// login api
+// login 
 exports.loginPost = async (req, res) => {
   const { email, password } = req.body;
 
@@ -65,8 +65,8 @@ exports.loginPost = async (req, res) => {
   }
 };
 
-// get user name for displaying in header
 
+// get user details
 exports.getUser = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -78,15 +78,15 @@ exports.getUser = async (req, res) => {
 
     return res
       .status(200)
-      .json({ username: user.name, premium: user.isPremium });
+      .json({ username: user.name, premium: user.isPremium, totalAmount:user.totalAmount });
   } catch (err) {
     console.error("failed to get user in api", err);
     return res.status(500).json({ message: "failed to get username" });
   }
 };
 
-// forgot password api
 
+// forgot password 
 exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
   console.log("received email", email);
@@ -134,8 +134,8 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// reset password api
 
+// reset password 
 exports.resetPassword = async (req, res) => {
   const { newPassword } = req.body;
   const requestId = req.params.id;

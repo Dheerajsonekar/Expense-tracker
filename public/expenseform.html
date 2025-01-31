@@ -3,13 +3,14 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="./assets/expenseform.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="./assets/expenseform.css" />
+    <link rel="stylesheet" href="assets/all.min.css" />
 </head>
 
 <body>
@@ -17,16 +18,26 @@
         <a href="#" class="logo">Expense Tracker</a>
         <div class="header-right">
             <a id="premium" href="#">Buy Premium</a>
-            <a href="#" id="downloadbtn">Download</a>
+
             <a id="leaderboard" href="#">Leaderboard</a>
             <a href=""><span id="username">User</span></a>
             <a id="logoutbtn" href="#">Logout</a>
         </div>
     </div>
 
+    <!-- show expenses according to day month and year -->
+    <div class="showExpenseSection">
+        <button class="btn dailyNotes" id="notes">🖊️</button>
+        <button class="btn dailyExpense" id="daily">Daily</button>
+        <button class="btn monthlyExpense" id="monthly">Monthly</button>
+        <button class="btn yearlyExpense" id="yearly">Yearly</button>
+    </div>
+
     <div class="floating-btn" id="addExpenseButton">➕</div>
+    <div class="floating-btn" id="downloadbtn">📝</div>
+    <div class="floating-btn" id="notesbtn">🖊️</div>
 
-
+    <!-- Add expense form -->
     <div id="expenseFormOverlay" class="overlay hidden">
         <div class="overlay-content">
             <div class="close-btn" id="closeExpenseForm">✖</div>
@@ -36,52 +47,74 @@
                     <form id="expenseForm">
                         <div class="row">
                             <i class="fas fa-"></i>
-                            <input type="text" name="amount" id="amount" placeholder="Amount">
+                            <select name="expenseType" id="expenseType">
+                                <option value="" disabled selected>Type</option>
+                                <option value="Credit">Credit</option>
+                                <option value="Debit">Debit</option>
+                            </select>
                         </div>
                         <div class="row">
                             <i class="fas fa-"></i>
-                            <input type="text" name="description" id="description" placeholder="Description">
+                            <select name="category" id="category" disabled>
+                                <option value="" disabled selected>Category</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <i class="fas fa-"></i>
+                            <input type="text" name="amount" id="amount" placeholder="Amount" />
                         </div>
 
                         <div class="row">
                             <i class="fas fa-"></i>
-                            <select name="category" id="category">
-                                <option value="food">food</option>
-                                <option value="book">book</option>
-                                <option value="movie">movie</option>
-                                <option value="sport">sport</option>
-                                <option value="coding">coding</option>
-                                <option value="date">Date</option>
-                            </select>
+                            <input type="text" name="description" id="description" placeholder="Description" />
                         </div>
 
                         <div class="row button">
-
-                            <input type="submit" class="submit-btn" value="Add">
+                            <input type="submit" class="submit-btn" value="Add" />
                         </div>
-
-
-
-
-
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="wrapper-main-a">
+    <!--Add Notes form  -->
+    <div id="notesFormOverlay" class="overlay hidden">
+        <div class="overlay-content">
+            <div class="close-btn" id="closeNotesForm">✖</div>
+            <div class="wrapper-main">
+                <div class="wrapper">
+                    <div class="title"><span>Add Notes</span></div>
+                    <form id="notesForm">
+                        <div class="row">
+                            <i class="fas fa-"></i>
+                            <input type="text" name="note" id="note" placeholder="enter note" />
+                        </div>
+
+                        <div class="row button">
+                            <input type="submit" class="submit-btn" value="Add" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrapper-main-a" id="showDailyExpensediv">
         <div class="wrapper-list">
-            <div class="title"><span>Expenses</span></div>
+            <div id="dateNavigation">
+                <button id="prevBtn"><</button>
+                <div class="date" id="dateForExpense">show current date here</div>
+                <div id="balance" class="showBalance">Balance</div>
+                <button id="nextBtn">></button>
+            </div>
             <div class="row-list">
                 <ul id="list"></ul>
             </div>
 
             <!-- Pagination Controls -->
             <div id="pagination">
-                <button id="prevPage" disabled>Previous</button>
-
-                <button id="nextPage">Next</button>
+                
             </div>
 
             <!-- Dropdown to select number of expenses -->
@@ -89,8 +122,92 @@
                 <option value="5">5 Expenses</option>
                 <option value="10">10 Expenses</option>
                 <option value="20">20 Expenses</option>
-                <option value="30">30 Expenses</option>
-                <option value="40">40 Expenses</option>
+                
+            </select>
+        </div>
+    </div>
+
+    <div class="wrapper-main-a" id="showNotesdiv">
+        <div class="wrapper-list">
+            <div id="dateNavigation">
+                <button id="prevBtnForNotes"><</button>
+                <div class="date" id="dateForNotes">show current month here</div>
+                <button id="nextBtnForNotes">></button>
+            </div>
+            
+            
+            <div class="row-list">
+                <ul id="notelist"></ul>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div id="paginationForNotes">
+                
+            </div>
+
+            <!-- Dropdown to select number of notes -->
+            <select id="noteCountSelect">
+                <option value="5">5 notes</option>
+                <option value="10">10 notes</option>
+                <option value="20">20 notes</option>
+                
+            </select>
+        </div>
+    </div>
+
+    <!-- show monthly expenses -->
+    <div class="wrapper-main-a" id="showMonthlyExpensesdiv">
+        <div class="wrapper-list">
+            <div id="dateNavigation">
+                <button id="prevBtnForMonth"><</button>
+                <div class="date" id="dateForMonthlyExpenses">show current month here</div>
+                <button id="nextBtnForMonth">></button>
+            </div>
+            
+            
+            <div class="row-list">
+                <ul id="expenseListOfMonths"></ul>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div id="paginationForMonthlyExpenses">
+                
+            </div>
+
+            <!-- Dropdown to select number of days -->
+            <select id="monthlyExpenseCountSelect">
+                <option value="5">5 days</option>
+                <option value="10">10 days</option>
+                <option value="20">15 days</option>
+                
+            </select>
+        </div>
+    </div>
+
+    <!-- show yearly expenses -->
+    <div class="wrapper-main-a" id="showYearlyExpensesdiv">
+        <div class="wrapper-list">
+            <div id="dateNavigation">
+                <button id="prevBtnForYearlyExpenses"><</button>
+                <div class="date" id="dateForYearlyExpenses">show current year here</div>
+                <button id="nextBtnForYearlyExpenses">></button>
+            </div>
+            
+            
+            <div class="row-list">
+                <ul id="expenseListForYearly"></ul>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div id="paginationForYearlyExpenses">
+                
+            </div>
+
+            <!-- Dropdown to select number of expenses -->
+            <select id="yearCountSelect">
+                <option value="5">5 years</option>
+                <option value="10">8 years</option>
+                
             </select>
         </div>
     </div>
@@ -118,11 +235,10 @@
         </div>
     </div>
 
+    
 
-
-
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="./checkout.js"></script>
+    <script src="./axios.min.js"></script>
 
     <script src="./assets/expenseform.js" async defer></script>
 </body>
