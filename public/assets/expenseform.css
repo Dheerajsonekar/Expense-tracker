@@ -244,3 +244,8 @@ form .row input:placeholder {
     color: black;
     cursor: pointer;
 }
+
+
+.wrapper-list .showDate {
+    display: flex;;
+}

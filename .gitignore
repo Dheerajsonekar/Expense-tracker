@@ -2,3 +2,5 @@
 /package-lock.json
 .env
 services
+server.cert
+server.key

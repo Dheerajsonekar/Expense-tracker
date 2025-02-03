@@ -236,6 +236,7 @@ const token = localStorage.getItem("authToken");
     addExpenseButton.classList.add("hidden");
     addNotesButton.classList.remove("hidden");
     showYearlyExpensesdiv.classList.add("hidden");
+    showMonthlyExpensesdiv.classList.add("hidden")
 
     const addNotesForm = document.getElementById("notesForm");
 
@@ -369,6 +370,7 @@ const token = localStorage.getItem("authToken");
   });
 
   dailyButton.addEventListener("click", async () => {
+    showMonthlyExpensesdiv.classList.add("hidden")
     showYearlyExpensesdiv.classList.add("hidden");
     showNotesdiv.classList.add("hidden");
     showDailyExpensediv.classList.remove("hidden");
@@ -565,6 +567,7 @@ const token = localStorage.getItem("authToken");
   });
 
   yearlyButton.addEventListener("click", () => {
+
     showYearlyExpensesdiv.classList.remove("hidden");
     showMonthlyExpensesdiv.classList.add("hidden");
     showNotesdiv.classList.add("hidden");
